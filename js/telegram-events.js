@@ -1,4 +1,4 @@
-// Variables de// Función para manejar acciones de Telegram
+// Función para manejar acciones de Telegram
 function handleTelegramAction(action, messageId) {
     console.log('Acción recibida:', action, 'para mensaje:', messageId);
     
@@ -23,42 +23,20 @@ function handleTelegramAction(action, messageId) {
     console.log('Emitiendo acción al servidor:', action);
     
     // Notificar al servidor que procese la acción
-    socket.emit('process_action', {ONNECT_DELAY = 5000;
-
-// Asegurarse de que commonUtils esté inicializado
-if (typeof window.commonUtils !== 'undefined') {
-    window.commonUtils.initializeCommon();
-}
-
-// Obtener la instancia global de Socket.io
-const socket = window.socket;
-
-if (!socket) {
-    console.error('Socket.io no está inicializado');
-}
-
-// Función para manejar acciones de Telegram
-function handleTelegramAction(action, messageId) {
-    console.log('Acción recibida:', action, 'para mensaje:', messageId);
-    
-    if (!socket) {
-        console.error('Socket.io no está disponible');
-        return;
-    }
-
-    // Mostrar pantalla de carga
-    window.commonUtils.showLoadingScreen();
-
-    // Almacenar la acción actual en sessionStorage
-    sessionStorage.setItem('currentAction', action);
-    sessionStorage.setItem('currentMessageId', messageId);
-
-    // Notificar al servidor que procese la acción
     socket.emit('process_action', {
         action: action,
         messageId: messageId
     });
-    }
+}
+
+// Variables globales
+const RECONNECT_DELAY = 5000;
+let eventSource = null;
+let reconnectTimer = null;
+
+// Asegurarse de que commonUtils esté inicializado
+if (typeof window.commonUtils !== 'undefined') {
+    window.commonUtils.initializeCommon();
 }
 
 // Función para inicializar EventSource
@@ -132,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentAction = sessionStorage.getItem('currentAction');
     if (currentAction) {
         console.log('Acción pendiente encontrada:', currentAction);
-        // Implementar lógica específica según la acción
         sessionStorage.removeItem('currentAction');
     }
 });

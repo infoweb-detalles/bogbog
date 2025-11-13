@@ -2,7 +2,7 @@
 window.commonUtils = {
     // Inicialización de funciones comunes
     initializeCommon: function() {
-        console.log('Inicializando funciones comunes...');
+        console.log('Inicializando funciones comunes para Render...');
         
         // Esperar a que el DOM esté listo antes de crear elementos
         if (document.readyState === 'loading') {
@@ -20,20 +20,19 @@ window.commonUtils = {
         console.log('Funciones comunes inicializadas');
     },
 
-    // Inicializar Socket.io
+    // Inicializar Socket.io - SIMPLIFICADO PARA RENDER
     initializeSocket: function() {
-        console.log('Inicializando Socket.io...');
+        console.log('Inicializando Socket.io para Render...');
         try {
             if (!window.socket && typeof io !== 'undefined') {
-                // Determinar la URL base según el entorno
-                const isVercel = window.location.hostname.includes('vercel.app');
-                const socketUrl = isVercel 
-                    ? 'https://sucursbogotapersonas.vercel.app'
-                    : 'http://localhost:3000';
+                // Usar la URL actual - Render maneja el dominio
+                const socketUrl = window.location.origin;
 
                 console.log('Conectando a Socket.io en:', socketUrl);
                 window.socket = io(socketUrl, {
-                    transports: ['websocket', 'polling']
+                    transports: ['websocket', 'polling'],
+                    reconnection: true,
+                    reconnectionDelay: 1000
                 });
                 
                 window.socket.on('connect', () => {
@@ -61,7 +60,14 @@ window.commonUtils = {
                 });
 
                 window.socket.on('connect_error', (error) => {
-                    console.error('❌ Error de conexión:', error.message);
+                    console.error('❌ Error de conexión Socket.io:', error.message);
+                    // Intentar reconexión automática
+                    setTimeout(() => {
+                        if (!window.socket?.connected) {
+                            console.log('🔄 Intentando reconexión...');
+                            this.initializeSocket();
+                        }
+                    }, 3000);
                 });
             }
         } catch (error) {
@@ -69,7 +75,7 @@ window.commonUtils = {
         }
     },
 
-    // Crear pantalla de carga - CON VERIFICACIÓN DE SEGURIDAD
+    // Crear pantalla de carga
     createLoadingScreen: function() {
         // Verificar que el DOM esté listo
         if (!document.head || !document.body) {
@@ -144,7 +150,6 @@ window.commonUtils = {
         }
     },
 
-    // ... el resto de las funciones se mantienen igual
     createErrorMessage: function() {
         if (!document.body) {
             setTimeout(() => this.createErrorMessage(), 100);

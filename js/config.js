@@ -1,11 +1,11 @@
-// Configuración de la aplicación
+// Configuración de la aplicación para Render
 window.appConfig = {
-    // Determinar si estamos en Vercel
-    isVercel: window.location.hostname.includes('vercel.app'),
+    // Determinar entorno
+    isProduction: window.location.hostname.includes('onrender.com'),
     
-    // URLs base
+    // URLs base - usar siempre el origen actual
     get baseUrl() {
-        return this.isVercel ? 'http://127.0.0.1:5500' : window.location.origin;
+        return window.location.origin;
     },
     
     // Configuración de Socket.io
@@ -13,8 +13,9 @@ window.appConfig = {
         path: '/socket.io',
         transports: ['websocket', 'polling'],
         reconnection: true,
-        reconnectionDelay: 5000,
-        reconnectionDelayMax: 10000
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        reconnectionAttempts: 5
     },
     
     // Obtener la URL del socket

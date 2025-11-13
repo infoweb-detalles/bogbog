@@ -1,22 +1,31 @@
 {
-  "name": "panel-de-bogota",
+  "name": "banca-virtual-bogota",
   "version": "1.0.0",
+  "description": "Banca Virtual Banco de Bogotá",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "build": "echo \"No build step needed\"",
-    "vercel-build": "echo \"No build step needed\""
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "express": "^5.1.0",
-    "express-session": "^1.18.2",
-    "node-telegram-bot-api": "^0.66.0",
-    "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
-    "ws": "^8.18.3"
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "node-telegram-bot-api": "^0.64.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "banking",
+    "telegram",
+    "socket.io",
+    "banco-bogota"
+  ],
+  "author": "Tu Nombre",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/infoweb-detalles/renderbogota.git"
   }
 }

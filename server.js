@@ -24,8 +24,15 @@ const chatId = process.env.TELEGRAM_CHAT_ID || '7831097636';
 const bot = new TelegramBot(token, { polling: true });
 
 // Middlewares
-app.use(express.json());
 app.use(express.static(path.join(__dirname)));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/Imagenes', express.static(path.join(__dirname, 'Imagenes')));
+app.use('/css', express.static(path.join(__dirname, 'css'))); // si tienes carpeta css
+
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Imagenes', 'channels4_profile-removebg-preview.png'));
+});
+
 
 // Configurar CORS más permisivo para Render
 app.use((req, res, next) => {

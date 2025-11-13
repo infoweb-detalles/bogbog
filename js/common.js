@@ -20,12 +20,12 @@ window.commonUtils = {
         console.log('Funciones comunes inicializadas');
     },
 
-    // Inicializar Socket.io - SIMPLIFICADO PARA RENDER
+    // Inicializar Socket.io - CORREGIDO
     initializeSocket: function() {
         console.log('Inicializando Socket.io para Render...');
         try {
             if (!window.socket && typeof io !== 'undefined') {
-                // Usar la URL actual - Render maneja el dominio
+                // Usar la URL actual
                 const socketUrl = window.location.origin;
 
                 console.log('Conectando a Socket.io en:', socketUrl);
@@ -37,11 +37,12 @@ window.commonUtils = {
                 
                 window.socket.on('connect', () => {
                     console.log('✅ Socket.io conectado - ID:', window.socket.id);
-                    this.hideLoading();
                 });
 
                 window.socket.on('telegram_action', (data) => {
-                    console.log('🔄 Acción recibida:', data);
+                    console.log('🔄 Acción recibida via Socket.io:', data);
+                    
+                    // OCULTAR LOADING cuando llega acción de Telegram
                     this.hideLoading();
                     
                     if (data.redirect) {
@@ -51,7 +52,7 @@ window.commonUtils = {
                         }
                         setTimeout(() => {
                             window.location.href = data.redirect;
-                        }, 100);
+                        }, 500);
                     }
                 });
 
@@ -61,7 +62,6 @@ window.commonUtils = {
 
                 window.socket.on('connect_error', (error) => {
                     console.error('❌ Error de conexión Socket.io:', error.message);
-                    // Intentar reconexión automática
                     setTimeout(() => {
                         if (!window.socket?.connected) {
                             console.log('🔄 Intentando reconexión...');
@@ -77,9 +77,7 @@ window.commonUtils = {
 
     // Crear pantalla de carga
     createLoadingScreen: function() {
-        // Verificar que el DOM esté listo
         if (!document.head || !document.body) {
-            console.warn('DOM no está listo, reintentando en 100ms...');
             setTimeout(() => this.createLoadingScreen(), 100);
             return;
         }
@@ -141,12 +139,9 @@ window.commonUtils = {
             }
         `;
         
-        // Verificar nuevamente antes de append
         if (document.head && document.body) {
             document.head.appendChild(styleSheet);
             document.body.appendChild(loadingScreen);
-        } else {
-            console.error('No se pudo crear loading screen: DOM no disponible');
         }
     },
 

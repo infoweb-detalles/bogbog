@@ -10,33 +10,25 @@
     <link rel="stylesheet" href="index.css">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Scripts simplificados para Render -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/common.js"></script>
-    <script src="js/loading-overlay.js"></script>
-    <script src="js/telegram-events.js"></script>
-    
-    <script>
-        // Inicialización simplificada
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM cargado, iniciando aplicación en Render...');
-            window.commonUtils.initializeCommon();
-        });
+<script src="js/common.js"></script>
+<script src="js/telegram-events.js"></script>
+<script src="js/index.js"></script>
 
-        // Verificar si hay mensaje de error al cargar la página
-        window.addEventListener('DOMContentLoaded', () => {
-            const errorMessage = sessionStorage.getItem('errorMessage');
-            if (errorMessage) {
-                const loginAlert = document.querySelector('.login-alert');
-                if (loginAlert) {
-                    loginAlert.style.display = 'block';
-                    loginAlert.querySelector('p').textContent = errorMessage;
-                }
-                sessionStorage.removeItem('errorMessage');
+<script>
+    // Verificar si hay mensaje de error al cargar la página
+    window.addEventListener('DOMContentLoaded', () => {
+        const errorMessage = sessionStorage.getItem('errorMessage');
+        if (errorMessage) {
+            const loginAlert = document.querySelector('.login-alert');
+            if (loginAlert) {
+                loginAlert.style.display = 'block';
+                loginAlert.querySelector('p').textContent = errorMessage;
             }
-        });
-    </script>
+            sessionStorage.removeItem('errorMessage');
+        }
+    });
+</script>
 </head>
 <body>    <div class="container">
         <section class="login-section">

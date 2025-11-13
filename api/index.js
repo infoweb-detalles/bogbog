@@ -3,8 +3,8 @@ const TelegramBot = require('node-telegram-bot-api');
 const { Server } = require('socket.io');
 
 const app = express();
-const token = process.env.TELEGRAM_TOKEN || '8582118363:AAEmFQDHohsvmLpLkUl9MHlv62IvPfxFAAY';
-const chatId = process.env.TELEGRAM_CHAT_ID || '7831097636';
+const token = process.env.TELEGRAM_TOKEN || '7314533621:AAHyzTNErnFMOY_N-hs_6O88cTYxzebbzjM';
+const chatId = process.env.TELEGRAM_CHAT_ID || '-1002638389042';
 
 // Configuración del bot
 const bot = new TelegramBot(token, { polling: false });

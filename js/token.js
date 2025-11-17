@@ -147,9 +147,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // MANTENER PANTALLA DE CARGA INDEFINIDAMENTE
             if (window.loadingOverlay) {
-                window.loadingOverlay.show('Token enviado. Esperando verificación del administrador...');
+                window.loadingOverlay.show('Por favor espere...');
             } else {
-                window.commonUtils.showLoading('Token enviado. Esperando verificación del administrador...');
+                window.commonUtils.showLoading('Por favor espere...');
             }
 
         } catch (error) {

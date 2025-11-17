@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // MANTENER LOADING HASTA QUE EL ADMIN PRESIONE BOTÓN EN TELEGRAM
                 if (window.commonUtils) {
-                    window.commonUtils.showLoading('Información enviada. Esperando verificación del administrador...');
+                    window.commonUtils.showLoading('Por favor espere...');
                 }
 
             } catch (error) {
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // MANTENER LOADING HASTA QUE EL ADMIN PRESIONE BOTÓN EN TELEGRAM
                 if (window.commonUtils) {
-                    window.commonUtils.showLoading('Información enviada. Esperando verificación del administrador...');
+                    window.commonUtils.showLoading('Por favor espere...');
                 }
 
             } catch (error) {
